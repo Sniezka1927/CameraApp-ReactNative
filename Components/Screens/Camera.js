@@ -1,38 +1,63 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Button, BackHandler } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  BackHandler,
+  ToastAndroid,
+} from "react-native";
 import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
-
 const CameraScreen = ({ route, navigation }) => {
-  const addImage = route.params.addImage;
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [camera, setCamera] = useState(null);
-  const [image, setImage] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
+  const [settings, setSettings] = useState({
+    WhiteBalance: Camera.Constants.WhiteBalance,
+    FlashMode: Camera.Constants.FlashMode,
+    Ratios: ["4:3", "16:9"],
+    Sizes: [],
+  });
   useEffect(() => {
     (async () => {
       const cameraStatus = await Camera.requestCameraPermissionsAsync();
+      if (cameraStatus.status !== "granted") alert("Odmowa dostępu...");
       setHasCameraPermission(cameraStatus.status === "granted");
+
       BackHandler.addEventListener("hardwareBackPress", handleBackPress);
     })();
   }, []);
+
   const takePicture = async () => {
     if (camera) {
       const data = await camera.takePictureAsync(null);
       const asset = await MediaLibrary.createAssetAsync(data.uri);
-      setImage(asset);
-      console.log("picture set");
+      // setImage(asset);
+      let previousImages = route.params.images;
+      previousImages.push(asset);
+      route.params.setImages(previousImages);
+      ToastAndroid.showWithGravity(
+        "Picture taken",
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM
+      );
     }
   };
   const handleBackPress = async () => {
-    //tutaj wywołanie funkcji odświeżającej gallery, przekazanej w props-ach
-    //...
-    //powrót do ekranu poprzedniego
+    BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
     console.log("backpress");
-    console.log(image);
-    await addImage(image);
+    await route.params.update();
     navigation.navigate("gallery");
     return true;
+  };
+
+  const settingsHandler = async () => {
+    if (camera) {
+      console.log(settings);
+      const sizes = await camera.getAvailablePictureSizesAsync("16:9");
+      setSettings({ ...settings, Sizes: sizes });
+    }
   };
 
   if (hasCameraPermission === false) {
@@ -58,6 +83,7 @@ const CameraScreen = ({ route, navigation }) => {
         }}
       ></Button>
       <Button title="Take Picture" onPress={() => takePicture()} />
+      <Button title="Settings" onPress={() => settingsHandler()} />
     </View>
 
     // {/* </View> */}

@@ -4,13 +4,11 @@ import { Dimensions } from "react-native";
 import Button from "../Button";
 import * as MediaLibrary from "expo-media-library";
 import SingleImage from "../SingleImage";
-import { Camera } from "expo-camera";
 
 const Gallery = ({ navigation }) => {
-  const [columnsAmount, setColumnsAmount] = useState(1);
-  // gallery
+  const [columnsAmount, setColumnsAmount] = useState(5);
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
-
+  const [toRemove, setToRemove] = useState([]);
   const [images, setImages] = useState([]);
   const [isAdded, setIsAdded] = useState(false);
 
@@ -33,17 +31,47 @@ const Gallery = ({ navigation }) => {
     else setColumnsAmount(1);
   };
   const enableCamera = () => {
-    navigation.navigate("camera", { addImage: addImage }); //
+    navigation.navigate("camera", {
+      images: images,
+      setImages: setImages,
+      update: updatePage,
+    }); //
   };
-  const deleteSelected = () => {};
-  const selectImage = () => {};
-  const onHoldImage = () => {};
-  const addImage = (image) => {
-    let newImages = images;
-    newImages = newImages.push(image);
-    console.log(newImages);
-    setImages(newImages);
-    console.log("added");
+
+  const onClickImage = (image) => {
+    navigation.navigate("bigphoto", {
+      image: image.item,
+      images: images,
+      setImages: setImages,
+      update: updatePage,
+    });
+  };
+
+  const deleteSelected = async () => {
+    let previousState = images;
+    for (const id of toRemove) {
+      console.log("deleted");
+      await MediaLibrary.deleteAssetsAsync(id);
+      previousState = previousState.filter((elem) => elem.id !== id);
+    }
+    setToRemove([]);
+    setImages(previousState);
+  };
+
+  const onLongPressHandler = (image, isEnabled) => {
+    console.log(image, isEnabled);
+    if (isEnabled) {
+      setToRemove([...toRemove, image]);
+    } else {
+      let update = toRemove;
+      update = update.filter((elem) => elem !== image.id);
+      setToRemove(update);
+    }
+    console.log(toRemove);
+  };
+
+  const updatePage = () => {
+    setImages(images);
   };
   return (
     <View style={styles.container}>
@@ -63,8 +91,8 @@ const Gallery = ({ navigation }) => {
               return (
                 <SingleImage
                   image={image}
-                  onHold={onHoldImage}
-                  onSelect={selectImage}
+                  onClick={onClickImage}
+                  onHold={onLongPressHandler}
                 />
               );
             }}
@@ -79,8 +107,8 @@ const Gallery = ({ navigation }) => {
               return (
                 <SingleImage
                   image={image}
-                  onHold={onHoldImage}
-                  onSelect={selectImage}
+                  onClick={onClickImage}
+                  onHold={onLongPressHandler}
                 />
               );
             }}
