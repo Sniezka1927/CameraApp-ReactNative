@@ -6,6 +6,7 @@ const Stack = createNativeStackNavigator();
 
 import Main from "./Components/Screens/Main";
 import gallery from "./Components/Screens/Gallery";
+import CameraScreen from "./Components/Screens/Camera";
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
       <Stack.Navigator>
         <Stack.Screen name="main" component={Main} />
         <Stack.Screen name="gallery" component={gallery} />
+        <Stack.Screen name="camera" component={CameraScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

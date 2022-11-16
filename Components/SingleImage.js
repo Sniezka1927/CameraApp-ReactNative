@@ -1,34 +1,34 @@
 import { useEffect, useState } from "react";
-import { Image, StyleSheet, Text, View, ImageBackground } from "react-native";
+import { StyleSheet, Text, View, ImageBackground } from "react-native";
 
 const SingleImage = (props) => {
   const onHoldHandler = props.onSelect;
   const onClickHandler = props.onHold;
   const image = props.image;
-  //   console.log(image);
   const imageSource = image.item.uri;
-  //   console.log(imageSource);
   return (
     <View style={styles.container}>
       <ImageBackground
         source={{ uri: imageSource }}
         style={styles.image}
         resizeMode="cover"
-      ></ImageBackground>
-      {/* <Image source={{ uri: imageSource }} style={styles.image}></Image> */}
-      <Text>{image.item.id}</Text>
+      >
+        <Text style={styles.text}>{image.item.id}</Text>
+      </ImageBackground>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   image: {
-    width: 100,
-    height: 100,
-
-    // backgroundColor: "red",
+    width: "100%",
+    height: undefined,
+    aspectRatio: 1,
   },
-  text: {},
+  text: {
+    fontSize: 24,
+    color: "#fff",
+  },
   container: {
     flex: 1,
     borderWidth: 1,
