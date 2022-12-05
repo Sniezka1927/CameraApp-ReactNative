@@ -6,6 +6,7 @@ import {
   Button,
   BackHandler,
   ToastAndroid,
+  Animated,
 } from "react-native";
 import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
@@ -13,19 +14,25 @@ const CameraScreen = ({ route, navigation }) => {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [camera, setCamera] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
+  const [settingsStartPos, setSettingsStartPos] = useState(
+    new Animated.Value(500)
+  );
+  const [hidden, setHidden] = useState(true);
   const [settings, setSettings] = useState({
     WhiteBalance: Camera.Constants.WhiteBalance,
     FlashMode: Camera.Constants.FlashMode,
     Ratios: ["4:3", "16:9"],
     Sizes: [],
   });
+
   useEffect(() => {
     (async () => {
       const cameraStatus = await Camera.requestCameraPermissionsAsync();
       if (cameraStatus.status !== "granted") alert("Odmowa dostępu...");
+      else setHasCameraPermission(true);
       setHasCameraPermission(cameraStatus.status === "granted");
-
       BackHandler.addEventListener("hardwareBackPress", handleBackPress);
+      console.log("useEffect completed!");
     })();
   }, []);
 
@@ -44,6 +51,7 @@ const CameraScreen = ({ route, navigation }) => {
       );
     }
   };
+
   const handleBackPress = async () => {
     BackHandler.removeEventListener("hardwareBackPress", handleBackPress);
     console.log("backpress");
@@ -57,6 +65,24 @@ const CameraScreen = ({ route, navigation }) => {
       console.log(settings);
       const sizes = await camera.getAvailablePictureSizesAsync("16:9");
       setSettings({ ...settings, Sizes: sizes });
+
+      let toPos = null;
+      if (hidden) toPos = 0;
+      else toPos = 500;
+
+      //animacja
+
+      Animated.spring(settingsStartPos, {
+        toValue: toPos,
+        velocity: 1,
+        tension: 0,
+        friction: 10,
+        useNativeDriver: true,
+      }).start();
+
+      setHidden((prevState) => !prevState);
+
+      console.log(settingsStartPos);
     }
   };
 
@@ -81,7 +107,30 @@ const CameraScreen = ({ route, navigation }) => {
               : Camera.Constants.Type.back
           );
         }}
-      ></Button>
+      >
+        <Animated.View
+          style={[
+            styles.animatedView,
+            {
+              transform: [{ translateY: settingsStartPos }],
+            },
+          ]}
+        >
+          <Text style={styles.test}>ANIMATE ME!</Text>
+          <Text style={styles.test}>ANIMATE ME!</Text>
+          <Text style={styles.test}>ANIMATE ME!</Text>
+          <Text style={styles.test}>ANIMATE ME!</Text>
+          <Text style={styles.test}>ANIMATE ME!</Text>
+          <Text style={styles.test}>ANIMATE ME!</Text>
+          <Text style={styles.test}>ANIMATE ME!</Text>
+          <Text style={styles.test}>ANIMATE ME!</Text>
+          <Text style={styles.test}>ANIMATE ME!</Text>
+          <Text style={styles.test}>ANIMATE ME!</Text>
+          <Text style={styles.test}>ANIMATE ME!</Text>
+          <Text style={styles.test}>ANIMATE ME!</Text>
+          <Text style={styles.test}>ANIMATE ME!</Text>
+        </Animated.View>
+      </Button>
       <Button title="Take Picture" onPress={() => takePicture()} />
       <Button title="Settings" onPress={() => settingsHandler()} />
     </View>
@@ -99,6 +148,18 @@ const styles = StyleSheet.create({
   fixedRatio: {
     flex: 1,
     aspectRatio: 1,
+  },
+  animatedView: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#00ff00",
+    height: 500,
+  },
+  text: {
+    fontSize: 72,
+    color: "red",
   },
 });
 

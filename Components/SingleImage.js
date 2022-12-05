@@ -22,19 +22,31 @@ const SingleImage = (props) => {
   };
   return (
     <TouchableOpacity
-      style={styles.container}
+      // style={styles.container}
       onPress={onClickHandler}
       onLongPress={onHoldHanlder}
+      style={
+        props.imageWidth === 1
+          ? styles.containerVertical
+          : styles.containerHorizontal
+      }
     >
       <ImageBackground
         source={{ uri: imageSource }}
         style={styles.image}
         resizeMode="cover"
       >
-        <Text style={styles.text}>{image.item.id}</Text>
-        <View style={styles.selectedContainer}>
-          {isEnabled ? <Text style={styles.selected}>+</Text> : null}
-        </View>
+        {!isEnabled ? (
+          <View style={styles.selectedContainer}>
+            <Text style={styles.text}>{image.item.id}</Text>
+          </View>
+        ) : (
+          <View style={styles.selectedContainer}>
+            <Text style={styles.selected}>
+              <Text style={styles.text}>{image.item.id}</Text>
+            </Text>
+          </View>
+        )}
       </ImageBackground>
     </TouchableOpacity>
   );
@@ -50,18 +62,24 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#fff",
   },
-  container: {
+  containerVertical: {
     flex: 1,
     borderWidth: 1,
+    width: "20%",
+  },
+  containerHorizontal: {
+    flex: 1,
+    borderWidth: 1,
+    width: "100%",
   },
   selected: {
-    fontSize: 50,
-    color: "red",
+    backgroundColor: "rgba(255, 51, 0,0.5)",
+    width: "100%",
+    height: "100%",
+    // fontSize: 50,
+    // color: "red",
   },
-  selectedContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  selectedContainer: {},
 });
 
 export default SingleImage;
