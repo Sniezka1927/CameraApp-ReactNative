@@ -134,7 +134,7 @@ const CameraScreen = ({ route, navigation }) => {
         flashMode={cameraSettings.FlashMode}
         type={cameraSettings.Type}
         VideoQuality={cameraSettings.VideoQuality}
-        ratio={"1:1"}
+        // ratio={"1:1"}
         ref={(ref) => setCamera(ref)}
         style={styles.fixedRatio}
       ></Camera>
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "50%",
     flex: 1,
-    aspectRatio: 1,
+    // aspectRatio: 1,
   },
   buttonContainer: {
     flex: 1,
