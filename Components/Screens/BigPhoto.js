@@ -33,6 +33,9 @@ const BigPhoto = ({ route, navigation }) => {
         <Button clickFunction={shareImage} text={"share"}></Button>
         <Button clickFunction={deleteImage} text={"delete"}></Button>
       </View>
+      <Text>
+        {image.height} x {image.width}
+      </Text>
     </View>
   );
 };

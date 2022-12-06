@@ -7,24 +7,32 @@ import {
   BackHandler,
   ToastAndroid,
   Animated,
+  Dimensions,
 } from "react-native";
 import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
+import Settings from "../Settings";
+
 const CameraScreen = ({ route, navigation }) => {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [camera, setCamera] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [settingsStartPos, setSettingsStartPos] = useState(
-    new Animated.Value(500)
+    new Animated.Value(Dimensions.get("window").height)
   );
   const [hidden, setHidden] = useState(true);
-  const [settings, setSettings] = useState({
-    WhiteBalance: Camera.Constants.WhiteBalance,
-    FlashMode: Camera.Constants.FlashMode,
-    Ratios: ["4:3", "16:9"],
-    Sizes: [],
+  let settings = [];
+  let settingsObj = {};
+  Object.keys(Camera.Constants).forEach((e) => {
+    if (typeof Camera.Constants[e] == "object")
+      if (Object.keys(Camera.Constants[e]).length > 1) {
+        settings.push({ setting: e, options: Camera.Constants[e] });
+        settingsObj[e] = 0;
+      }
   });
+  const [cameraSettings, setCameraSettings] = useState(settingsObj);
 
+  console.log(cameraSettings);
   useEffect(() => {
     (async () => {
       const cameraStatus = await Camera.requestCameraPermissionsAsync();
@@ -40,7 +48,6 @@ const CameraScreen = ({ route, navigation }) => {
     if (camera) {
       const data = await camera.takePictureAsync(null);
       const asset = await MediaLibrary.createAssetAsync(data.uri);
-      // setImage(asset);
       let previousImages = route.params.images;
       previousImages.push(asset);
       route.params.setImages(previousImages);
@@ -62,16 +69,11 @@ const CameraScreen = ({ route, navigation }) => {
 
   const settingsHandler = async () => {
     if (camera) {
-      console.log(settings);
-      const sizes = await camera.getAvailablePictureSizesAsync("16:9");
-      setSettings({ ...settings, Sizes: sizes });
-
       let toPos = null;
       if (hidden) toPos = 0;
-      else toPos = 500;
+      else toPos = Dimensions.get("window").height;
 
       //animacja
-
       Animated.spring(settingsStartPos, {
         toValue: toPos,
         velocity: 1,
@@ -79,83 +81,107 @@ const CameraScreen = ({ route, navigation }) => {
         friction: 10,
         useNativeDriver: true,
       }).start();
-
-      setHidden((prevState) => !prevState);
-
-      console.log(settingsStartPos);
+      setHidden((previousState) => !previousState);
     }
+  };
+
+  const changeSetting = (setting, option) => {
+    let settings = cameraSettings;
+    settings[setting] = Camera.Constants[setting][option];
+    setCameraSettings(settings);
+    console.log("94", cameraSettings);
+    // console.log(settings.FlashMode);
+    console.log(type);
+    console.log(settings.Type);
+  };
+
+  const flip = () => {
+    let settings = cameraSettings;
+    setType(
+      type === Camera.Constants.Type.back
+        ? Camera.Constants.Type.front
+        : Camera.Constants.Type.back
+    );
+
+    console.log(type);
+    settings.Type = type;
+    setCameraSettings(settings);
   };
 
   if (hasCameraPermission === false) {
     return <Text>No access to camera</Text>;
   }
   return (
-    // <View style={{ flex: 1 }}>
-    <View style={styles.cameraContainer}>
+    <View style={{ flex: 1 }}>
+      <Animated.View
+        style={[
+          styles.animatedView,
+          {
+            transform: [{ translateY: settingsStartPos }],
+          },
+        ]}
+      >
+        <Settings
+          settings={settings}
+          changeSetting={changeSetting}
+          style={styles.settingsContainer}
+        />
+      </Animated.View>
       <Camera
+        onCameraReady={() => console.log("camera ready")}
+        AutoFocus={cameraSettings.AutoFocus}
+        whiteBalance={cameraSettings.WhiteBalance}
+        flashMode={cameraSettings.FlashMode}
+        type={cameraSettings.Type}
+        VideoQuality={cameraSettings.VideoQuality}
+        ratio={"1:1"}
         ref={(ref) => setCamera(ref)}
         style={styles.fixedRatio}
-        type={type}
-        ratio={"1:1"}
-      />
-      <Button
-        title="Flip Image"
-        onPress={() => {
-          setType(
-            type === Camera.Constants.Type.back
-              ? Camera.Constants.Type.front
-              : Camera.Constants.Type.back
-          );
-        }}
-      >
-        <Animated.View
-          style={[
-            styles.animatedView,
-            {
-              transform: [{ translateY: settingsStartPos }],
-            },
-          ]}
-        >
-          <Text style={styles.test}>ANIMATE ME!</Text>
-          <Text style={styles.test}>ANIMATE ME!</Text>
-          <Text style={styles.test}>ANIMATE ME!</Text>
-          <Text style={styles.test}>ANIMATE ME!</Text>
-          <Text style={styles.test}>ANIMATE ME!</Text>
-          <Text style={styles.test}>ANIMATE ME!</Text>
-          <Text style={styles.test}>ANIMATE ME!</Text>
-          <Text style={styles.test}>ANIMATE ME!</Text>
-          <Text style={styles.test}>ANIMATE ME!</Text>
-          <Text style={styles.test}>ANIMATE ME!</Text>
-          <Text style={styles.test}>ANIMATE ME!</Text>
-          <Text style={styles.test}>ANIMATE ME!</Text>
-          <Text style={styles.test}>ANIMATE ME!</Text>
-        </Animated.View>
-      </Button>
-      <Button title="Take Picture" onPress={() => takePicture()} />
-      <Button title="Settings" onPress={() => settingsHandler()} />
+      ></Camera>
+      <View style={styles.buttonContainer}>
+        <Button
+          title="Flip Image"
+          onPress={() => {
+            flip();
+          }}
+        ></Button>
+        <Button title="Take Picture" onPress={() => takePicture()} />
+        <Button title="Settings" onPress={() => settingsHandler()} />
+      </View>
     </View>
-
-    // {/* </View> */}
   );
 };
 const styles = StyleSheet.create({
   cameraContainer: {
-    // flex: 1,
-    // flexDirection: "row",
-    width: "100%",
-    height: "100%",
+    flex: 1,
+  },
+  settingsContainer: {
+    position: "absolute",
   },
   fixedRatio: {
+    width: "100%",
+    height: "50%",
     flex: 1,
     aspectRatio: 1,
   },
-  animatedView: {
+  buttonContainer: {
+    flex: 1,
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#00ff00",
-    height: 500,
+    height: 110,
+  },
+  animatedView: {
+    zIndex: 2,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#0288D1",
+    opacity: 0.8,
+    height: Dimensions.get("window").height,
+    width: "50%",
   },
   text: {
     fontSize: 72,
