@@ -1,3 +1,4 @@
+import { AutoFocus } from "expo-camera";
 import { useEffect, useState } from "react";
 import {
   StyleSheet,
@@ -5,6 +6,7 @@ import {
   View,
   ImageBackground,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 
 const SingleImage = (props) => {
@@ -13,6 +15,7 @@ const SingleImage = (props) => {
   const image = props.image;
   const imageSource = image.item.uri;
 
+  console.log(props.imageWidth);
   const onClickHandler = () => {
     props.onClick(props.image);
   };
@@ -25,15 +28,13 @@ const SingleImage = (props) => {
       // style={styles.container}
       onPress={onClickHandler}
       onLongPress={onHoldHanlder}
-      style={
-        props.imageWidth === 1
-          ? styles.containerVertical
-          : styles.containerHorizontal
-      }
+      style={styles.container}
     >
       <ImageBackground
         source={{ uri: imageSource }}
-        style={styles.image}
+        style={
+          props.imageWidth === 1 ? styles.imageVertical : styles.imageHorizontal
+        }
         resizeMode="cover"
       >
         {!isEnabled ? (
@@ -53,24 +54,22 @@ const SingleImage = (props) => {
 };
 
 const styles = StyleSheet.create({
-  image: {
-    width: "100%",
+  imageHorizontal: {
+    width: Dimensions.get("window").width / 5,
     height: undefined,
     aspectRatio: 1,
+  },
+  imageVertical: {
+    width: Dimensions.get("window").width,
+    height: 500,
   },
   text: {
     fontSize: 24,
     color: "#fff",
   },
-  containerVertical: {
+  container: {
     flex: 1,
     borderWidth: 1,
-    width: "20%",
-  },
-  containerHorizontal: {
-    flex: 1,
-    borderWidth: 1,
-    width: "100%",
   },
   selected: {
     backgroundColor: "rgba(255, 51, 0,0.5)",

@@ -2,6 +2,8 @@ import { StatusBar } from "expo-status-bar";
 import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { StyleSheet } from "react-native";
+
 const Stack = createNativeStackNavigator();
 
 import Main from "./Components/Screens/Main";
@@ -17,10 +19,21 @@ export default function App() {
         <Stack.Screen
           name="camera"
           component={CameraScreen}
-          options={{ header: () => null }}
+          options={{ ...styles, headerShown: false }}
         />
         <Stack.Screen name="bigphoto" component={BigPhoto} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  headerStyle: {
+    backgroundColor: "#ff0055",
+  },
+  headerTintColor: "#ffffff",
+  headerTitleStyle: {
+    fontWeight: "bold",
+    color: "#eeeeee",
+  },
+});

@@ -1,4 +1,4 @@
-import { TouchableOpacity, View, StyleSheet, Text } from "react-native";
+import { TouchableOpacity, View, StyleSheet, Text, Image } from "react-native";
 
 const RadioButton = (props) => {
   return (

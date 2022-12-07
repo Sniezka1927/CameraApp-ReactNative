@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   container: {
-    paddingBottom: 100,
+    paddingBottom: 75,
   },
 });
 export default RadioGroup;

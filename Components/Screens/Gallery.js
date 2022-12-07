@@ -19,7 +19,7 @@ const Gallery = ({ navigation }) => {
         alert("brak uprawnień do czytania image-ów z galerii");
       }
       const downloadedImages = await MediaLibrary.getAssetsAsync({
-        first: 16, // ilość pobranych assetów
+        first: 25, // ilość pobranych assetów
         mediaType: "photo", // typ pobieranych danych, photo jest domyślne
       });
       setImages(downloadedImages.assets);
@@ -93,6 +93,7 @@ const Gallery = ({ navigation }) => {
                   image={image}
                   onClick={onClickImage}
                   onHold={onLongPressHandler}
+                  imageWidth={columnsAmount}
                 />
               );
             }}

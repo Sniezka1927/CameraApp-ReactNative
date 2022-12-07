@@ -12,6 +12,10 @@ import {
 import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import Settings from "../Settings";
+import RoundButton from "../RoundButton";
+import settingsPng from "../../assets/settings.png";
+import takePicturePng from "../../assets/takePicture.png";
+import flipCameraPng from "../../assets/flipCamera.png";
 
 const CameraScreen = ({ route, navigation }) => {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
@@ -139,14 +143,30 @@ const CameraScreen = ({ route, navigation }) => {
         style={styles.fixedRatio}
       ></Camera>
       <View style={styles.buttonContainer}>
-        <Button
-          title="Flip Image"
-          onPress={() => {
-            flip();
-          }}
-        ></Button>
-        <Button title="Take Picture" onPress={() => takePicture()} />
-        <Button title="Settings" onPress={() => settingsHandler()} />
+        <RoundButton
+          text="Flip"
+          onClick={flip}
+          left={"6%"}
+          src={flipCameraPng}
+          width={100}
+          height={100}
+        />
+        <RoundButton
+          text="Take Picture"
+          onClick={takePicture}
+          src={takePicturePng}
+          left={"38%"}
+          width={110}
+          height={110}
+        />
+        <RoundButton
+          text="Settings"
+          onClick={settingsHandler}
+          src={settingsPng}
+          left={"70%"}
+          width={100}
+          height={100}
+        />
       </View>
     </View>
   );
